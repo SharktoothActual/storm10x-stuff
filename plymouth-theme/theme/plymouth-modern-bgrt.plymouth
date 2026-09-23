@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Plymouth Modern BGRT
+Description=This theme uses your UEFI logo for seamless booting
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/plymouth-modern-bgrt
+ScriptFile=/usr/share/plymouth/themes/plymouth-modern-bgrt/bgrt.script
