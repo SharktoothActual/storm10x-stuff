@@ -1,4 +1,8 @@
 # BIOS Splash images
+
+> [!NOTE]
+> If you were planning on using the `plymouth-theme` provided in this repo then you don't need anything in here
+
 These are the startup images displayed at boot taken directly from the BIOS itself.
 The original images are 1920x1200, which you'll note *isn't actually native resolution*.
 This screws with custom backgrounds and alignment, so I made slightly stretched copies for your convenience.
