@@ -11,13 +11,14 @@ Contents
 ---
 | Directory | Contents |
 | --- | --- |
+| `accelerometer` | **WIP** - Stuff for getting tablet mode working |
 | `bios` | A copy of the BIOS that isn't some random post on a forum hosted behind MEGA's crappy service. |
 | `bios-splash` | This  has copies of the BIOS's custom splash screen, extracted from the BIOS itself. More info in there. |
 | `plymouth-theme` | A reworked version of `plymouth-modern-bgrt` by @glics. Repo is [here](https://github.com/glics/plymouth-modern-bgrt). |
 
 What I'm working on
 ---
-* Accelerometer support. So far I haven't even started as I don't use my laptop as a tablet.
+* Accelerometer support. Right now it's only partially working in GNOME.
 * Probably other stuff I can't think of right now
 
 I'm going to stop working on this README and actually put things into this repo now.
