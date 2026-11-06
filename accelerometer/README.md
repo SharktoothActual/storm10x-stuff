@@ -12,7 +12,7 @@ It should just be in your distro's repos, no AUR or COPR required.
 > [!NOTE]
 > **For Gentoo users**: It's in GURU as `gnome-extra/iio-sensor-proxy`.
 
-## GNOME method
+## Screen rotation (GNOME method)
 *Tested on Fedora 45*
 
 Like all things in GNOME, you will need an extension to get any basic functionality.
@@ -40,7 +40,7 @@ To do this, go to Settings > Keyboard > View and Customize Shortcuts > Accessibi
 If the OSK isn't popping up when you expect it to, **swipe up from the bottom of the screen towards the center**.
 If it's still not showing after that, toggle the OSK using the keyboard shortcut you made and try again.
 
-## KDE method
+## Screen rotation (KDE method)
 *Tested on Gentoo*
 
 Once you have `iio-sensor-proxy` emerged, go to System Settings > Display & Monitor > Orientation: Automatic (uncheck the box next to it).
@@ -48,6 +48,77 @@ That's it, now your screen rotates.
 If you're using Plasma 6.7 and later, the virtual keyboard should be automatically set up and just work out of the box.
 
 Otherwise, if they keyboard isn't appearing, you may need to install `plasma-keyboard` from your distro's repos. Should start working immediately.
+
+# Disabling the mouse and keyboard when in tablet mode (All desktops)
+I wrote a script that monitors the output of `iio-sensor-proxy` and disconnects the mouse and keyboard when not oriented like a laptop.
+It's universal, so if you got the other stuff running then this will work for you, too.
+**It's a daemon, so you'll need to write your own systemd unit file**.
+If you're like me and using OpenRC, I've written a unit file for you. Provided below.
+
+To get started, create the file `/usr/local/bin/auto-rotate-inputs` with the following contents:
+```bash
+#!/bin/bash
+
+# HELPER="/usr/local/bin/toggle-laptop-inputs"
+
+toggle_inputs() {
+  # Target these devices, which you can get by running `libinput list-devices` or `xinput list`
+  local touchpad="HTIX5288|093A:0255"
+  local keyboard="AT Translated" # Specifying the device ID is a good way to disable the touchscreen, use this instead
+  local action="$1"
+
+  for input_dir in /sys/class/input/input*; do
+          if [ -f "$input_dir/name" ]; then
+                  dev_name=$(cat "$input_dir/name" 2>/dev/null)
+
+                  if echo "$dev_name" | grep -qiE "$touchpad|$keyboard"; then
+                          if ! echo "$dev_name" | grep -qi "touchscreen"; then
+                                  if [ -f "$input_dir/inhibited" ]; then
+                                          echo "$action" > "$input_dir/inhibited" 2>/dev/null || true
+                                  fi
+                          fi
+                  fi
+          fi
+  done
+}
+
+# Listen to iio-sensor-proxy and if the orientation changes, toggle inputs accordingly
+stdbuf -oL monitor-sensor 2>/dev/null | grep --line-buffered "Accelerometer orientation changed:" | while read -r line; do
+  if echo "$line" | grep -qiE "normal"; then
+    toggle_inputs 0
+  else
+    toggle_inputs 1
+  fi
+done
+```
+The notes are there so you can follow along with the script if you're not much on coding (that's me).
+**Make it executable** with `sudo chmod +x /usr/local/bin/auto-rotate-inputs`.
+
+### THIS NEXT FILE IS FOR OPENRC. THIS WILL NOT WORK FOR YOU IF YOU'RE USING SYSTEMD.
+If you don't know what systemd is, **copy and paste the contents of the below file and ask an AI to make it work with your distro**.
+
+For the elite systemd-free linuxchads, create `/etc/init.d/auto-rotate-inputs` and drop the following into it:
+```bash
+#!/sbin/openrc-run
+
+name="Auto Rotate Inputs Daemon"
+description="Inhibits keyboard and touchpad for 2-in-1 devices"
+command="/usr/local/bin/auto-rotate-inputs"
+command_background="yes"
+pidfile="/run/auto-rotate-inputs.pid"
+
+depend() {
+        need dbus
+        after dbus
+}
+```
+**Make it executable** with `sudo chmod +x /etc/init.d/auto-rotate-inputs`.
+Next, add it to default with `sudo rc-update add auto-rotate-inputs default` and start it with `sudo rc-service auto-rotate-inputs start`.
+
+> [!NOTE]
+> I will add a systemd unit file in here someday, but until then you can always just copy the contents of the OpenRC init file and ask your favorite AI to convert it into a systemd unit for you
+> I would do this myself but I'm not willing to put code I can't test out into the wild.
+> The real solution is to not use systemd by get "gitting gud".
 
 # Conclusion
 Yeah the most painless setup by far is KDE, use that. Other than that, that's all I got.
