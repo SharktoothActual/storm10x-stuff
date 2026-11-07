@@ -74,7 +74,7 @@ toggle_inputs() {
                                   if [ -f "$input_dir/inhibited" ]; then
                                           echo "$action" > "$input_dir/inhibited" 2>/dev/null || true
                                   fi
-                        fi
+                          fi
                   fi
           fi
   done
@@ -98,7 +98,7 @@ The notes are there so you can follow along with the script if you're not much o
 **Make it executable** with `sudo chmod +x /usr/local/bin/auto-rotate-inputs`.
 
 ### THIS NEXT FILE IS FOR OPENRC. THIS WILL NOT WORK FOR YOU IF YOU'RE USING SYSTEMD.
-If you don't know what systemd is, **copy and paste the contents of the below file and ask an AI to make it work with your distro**.
+If you don't know what systemd is, **copy the contents of the below file and paste it into a chat with an AI, ask it to make it work with your distro**. I'd do it myself but I'm not gonna publish code I can't test and verify, so please forgive the inconvenience. You should also ask it what systemd is and help you understand it, as it's a very good thing to learn about. You can even ask why some people have strong opinions about it if you want to know why I provided an OpenRC init script instead of a systemd unit file.
 
 For the elite systemd-free linuxchads, create `/etc/init.d/auto-rotate-inputs` and drop the following into it:
 ```bash
@@ -117,11 +117,6 @@ depend() {
 ```
 **Make it executable** with `sudo chmod +x /etc/init.d/auto-rotate-inputs`.
 Next, add it to default with `sudo rc-update add auto-rotate-inputs default` and start it with `sudo rc-service auto-rotate-inputs start`.
-
-> [!NOTE]
-> I will add a systemd unit file in here someday, but until then you can always just copy the contents of the OpenRC init file and ask your favorite AI to convert it into a systemd unit for you
-> I would do this myself but I'm not willing to put code I can't test out into the wild.
-> The real solution is to not use systemd by get "gitting gud".
 
 # Conclusion
 Yeah the most painless setup by far is KDE, use that. Other than that, that's all I got.
