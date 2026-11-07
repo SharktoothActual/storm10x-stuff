@@ -59,12 +59,10 @@ To get started, create the file `/usr/local/bin/auto-rotate-inputs` with the fol
 ```bash
 #!/bin/bash
 
-# HELPER="/usr/local/bin/toggle-laptop-inputs"
-
 toggle_inputs() {
   # Target these devices, which you can get by running `libinput list-devices` or `xinput list`
   local touchpad="HTIX5288|093A:0255"
-  local keyboard="AT Translated" # Specifying the device ID is a good way to disable the touchscreen, use this instead
+  local keyboard="AT Translated" # Specifying the device ID is a good way to detach the touchscreen, use this instead
   local action="$1"
 
   for input_dir in /sys/class/input/input*; do
@@ -76,7 +74,7 @@ toggle_inputs() {
                                   if [ -f "$input_dir/inhibited" ]; then
                                           echo "$action" > "$input_dir/inhibited" 2>/dev/null || true
                                   fi
-                          fi
+                        fi
                   fi
           fi
   done
@@ -84,13 +82,18 @@ toggle_inputs() {
 
 # Listen to iio-sensor-proxy and if the orientation changes, toggle inputs accordingly
 stdbuf -oL monitor-sensor 2>/dev/null | grep --line-buffered "Accelerometer orientation changed:" | while read -r line; do
+        # Suspend at the login screen, as this acts very glitchy there
+        if loginctl show-session $(loginctl | awk '/active/ {print $1}') 2>/dev/null | grep -q "LockedHint=yes"; then
+                continue
+        fi
+
   if echo "$line" | grep -qiE "normal"; then
     toggle_inputs 0
   else
     toggle_inputs 1
   fi
 done
-```
+````
 The notes are there so you can follow along with the script if you're not much on coding (that's me).
 **Make it executable** with `sudo chmod +x /usr/local/bin/auto-rotate-inputs`.
 
